@@ -86,18 +86,18 @@ local link, used only to get the Box onto Wi-Fi and hand it a pairing code.
 ```mermaid
 sequenceDiagram
     autonumber
-    participant Box
+    participant Dev as Box
     participant API as box-api
     participant Store as Audio storage
     participant Job as process-storey-jobs
     participant App
 
-    Box->>API: recording started, signed
+    Dev->>API: recording started, signed
     API-->>App: Box status is now recording
-    Box->>API: recording complete with duration, size, hash
-    API-->>Box: signed upload URL
-    Box->>Store: upload audio
-    Box->>API: upload complete
+    Dev->>API: recording complete with duration, size, hash
+    API-->>Dev: signed upload URL
+    Dev->>Store: upload audio
+    Dev->>API: upload complete
     API->>Job: queue processing
     Job->>Store: fetch audio
     Job->>Job: transcribe, summarise, tag, or discard a slipped button
