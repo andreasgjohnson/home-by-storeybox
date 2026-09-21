@@ -1,16 +1,16 @@
 # Storeybox
 
-Storeybox is a hardware-first memory archive. A small physical device, the
-**Box**, sits at home and records spoken memories when someone presses it.
+The storeybox Home is a hardware-first memory archive. A small physical device, the
+**Home**, sits at home and records spoken memories when someone presses it.
 A companion iPhone app lets the household browse, search, and play back what
-the Box brings home.
+the box brings home.
 
 This repository is a public description of the project. The application,
 backend, and firmware source live in a private repository.
 
 ## The one product rule
 
-**The Box records. The app does not.**
+**The Home records. The app does not.**
 
 The phone app never captures audio. It pairs the Box to an account, shows the
 Box's status, and presents the archive. Recording happens only on the Box,
@@ -18,7 +18,7 @@ with a physical button, in the room where the memory is told.
 
 ## Product language
 
-- **Box** — the physical Storeybox hardware.
+- **Home** — the physical Storeybox hardware.
 - **Storey** — one saved memory: audio playback, transcript, summary, tags,
   emotional texture, memorable quotes, and provenance (which Box, when).
 - **Archive** — the collection of Storeys, browsable by time, theme, and
