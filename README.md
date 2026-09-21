@@ -92,17 +92,17 @@ sequenceDiagram
     participant Job as process-storey-jobs
     participant App
 
-    Box->>API: recording started (signed)
-    API-->>App: Box status = recording
-    Box->>API: recording complete (duration, size, hash)
+    Box->>API: recording started, signed
+    API-->>App: Box status is now recording
+    Box->>API: recording complete with duration, size, hash
     API-->>Box: signed upload URL
     Box->>Store: upload audio
     Box->>API: upload complete
     API->>Job: queue processing
     Job->>Store: fetch audio
-    Job->>Job: transcribe, summarise, tag<br/>(or discard a slipped button)
-    Job-->>App: Storey ready (read via RLS)
-    App->>Store: play audio (signed URL)
+    Job->>Job: transcribe, summarise, tag, or discard a slipped button
+    Job-->>App: Storey ready, read via RLS
+    App->>Store: play audio via signed URL
 ```
 
 The Box deletes its local copy only after the backend confirms the upload.
