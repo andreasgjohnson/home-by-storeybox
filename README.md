@@ -40,6 +40,74 @@ with a physical button, in the room where the memory is told.
    secured read paths. Hardware writes go through server-side functions,
    never through the app.
 
+## How the pieces talk to each other
+
+Three parties, and they never share credentials. The app holds a user
+session. The Box holds its own device key. Only the backend can write a
+Storey.
+
+```mermaid
+flowchart LR
+    subgraph Home
+        Box["Box (ESP32)<br/>button · mic · device key"]
+        App["iPhone app<br/>Expo / React Native"]
+    end
+
+    subgraph Backend["Supabase backend"]
+        Auth["Auth"]
+        BoxAPI["box-api<br/>Edge Function"]
+        DB[("Postgres<br/>RLS")]
+        Storage[("Private audio<br/>storage")]
+        Worker["process-storey-jobs<br/>Edge Function"]
+    end
+
+    AI["Transcription +<br/>summarisation"]
+
+    App -- "magic link sign-in" --> Auth
+    App -. "Bluetooth: Wi-Fi setup + pairing handoff" .-> Box
+    App -- "claim pairing code (user JWT)" --> BoxAPI
+    App -- "read Storeys + Box status (RLS, read only)" --> DB
+    App -- "play audio (signed URL)" --> Storage
+
+    Box -- "signed heartbeats, recording start / complete, upload complete" --> BoxAPI
+    Box -- "upload WAV via short-lived signed URL" --> Storage
+    BoxAPI --> DB
+    BoxAPI -- "queue job" --> Worker
+    Worker --> Storage
+    Worker <--> AI
+    Worker -- "transcript, summary, tags, provenance" --> DB
+```
+
+Solid arrows are network calls to the backend. The dotted arrow is the one
+local link, used only to get the Box onto Wi-Fi and hand it a pairing code.
+
+### One Storey, end to end
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Box
+    participant API as box-api
+    participant Store as Audio storage
+    participant Job as process-storey-jobs
+    participant App
+
+    Box->>API: recording started (signed)
+    API-->>App: Box status = recording
+    Box->>API: recording complete (duration, size, hash)
+    API-->>Box: signed upload URL
+    Box->>Store: upload audio
+    Box->>API: upload complete
+    API->>Job: queue processing
+    Job->>Store: fetch audio
+    Job->>Job: transcribe, summarise, tag<br/>(or discard a slipped button)
+    Job-->>App: Storey ready (read via RLS)
+    App->>Store: play audio (signed URL)
+```
+
+The Box deletes its local copy only after the backend confirms the upload.
+The app never touches the audio file until the Storey is ready.
+
 ## The app
 
 - **Home daybook** with Box presence and the most recent Storeys.
